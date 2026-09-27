@@ -560,10 +560,13 @@ namespace BetterInfestations
         public Thing[] attackTarget = { null, null, null };
         public IntVec3[] patrolLoc = { IntVec3.Invalid, IntVec3.Invalid, IntVec3.Invalid };
         public LocomotionUrgency[] patrolLocomotion = { LocomotionUrgency.Walk, LocomotionUrgency.Walk, LocomotionUrgency.Walk };
+        public enum GroupState { Idle, Patrolling, Returning, WaitForOrders }
+        public GroupState[] groupState = { GroupState.Idle, GroupState.Idle, GroupState.Idle };
         public bool[] waitForOrders = { true, true, true };
         public int[] waitTicks = { 0, 0, 0 };
         public int reassignPawnTick = -1;
         public HiveData_MapComponent mapHiveData;
+
 
 
         public CompProperties_SpawnerPawns Props => (CompProperties_SpawnerPawns)props;
@@ -880,175 +883,122 @@ namespace BetterInfestations
         public void GroupController(int index)
         {
             if (index == 0) return;
+            IntVec3 pos;
+
 
             if (Find.TickManager.TicksGame > waitTicks[index])
             {
-                if (GroupStrength(index) >= 400)
+                float groupStrength = GroupStrength(index);
+                if (groupStrength == 0)
                 {
-                    Pawn pawn = null;
-                    foreach (Pawn p in spawnedPawns[index])
-                    {
-                        int dist = IntVec3Utility.ManhattanDistanceFlat(p.Position, patrolLoc[index]);
-                        if (dist > 8)
-                        {
-                            bool asleep = p.jobs.posture == PawnPosture.LayingOnGroundNormal;
-                            bool atWork = p.jobs.curJob != null && p.jobs.curJob.targetA != null && p.jobs.curJob.targetA != patrolLoc[index];
-                            if (!asleep && !atWork)
-                            {
-                                // Waits for group to regroup if a pawn is behind and not sleeping or busy
-                                waitTicks[index] = Find.TickManager.TicksGame + 1200;
-                                return;
-                            }
-                        }
-                        pawn = p;
-                    }
-                    if (pawn != null)
-                    {
-                        if (waitForOrders[index])
-                        {
-                            if (Rand.Range(1, 100) <= 30)
-                            {
-                                // 30% chance of waiting at current location
-                                waitForOrders[index] = false;
-                                waitTicks[index] = Find.TickManager.TicksGame + 900;
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            IntVec3 pos = IntVec3.Invalid;
-                            //if (Rand.Range(1, 100) <= 0) // Currently 0% chance
-                            //{
-                            //    // GetColonyStockpileSpot not working! Commented out for now.
-                            //    pos = HiveUtility.GetColonyStockpileSpot(pawn.Map);
-                            //    if (pos != IntVec3.Invalid && pawn.CanReserve(pos))
-                            //    {
-                            //        patrolLoc[index] = pos;
-                            //        patrolLocomotion[index] = LocomotionUrgency.Jog;
-                            //        waitForOrders[index] = true;
-                            //        waitTicks[index] = Find.TickManager.TicksGame + 1000;
-                            //        return;
-                            //    }
-                            //}
-                            //else
-                            //{
-                            pos = HiveUtility.FindPathToPrey(pawn);
-                            if (pos != IntVec3.Invalid && pawn.CanReserve(pos))
-                            {
-                                // Patrol towards prey
-                                patrolLoc[index] = pos;
-                                patrolLocomotion[index] = LocomotionUrgency.Walk;
-                                waitForOrders[index] = true;
-                                waitTicks[index] = Find.TickManager.TicksGame + 1200;
-                                return;
-                            }
-                            else
-                            {
-                                // If no prey, patrol randomly
-                                if (CellFinder.TryFindRandomReachableNearbyCell(pawn.Position, pawn.Map, 15f, TraverseMode.PassDoors, (c => c.Standable(pawn.Map)), null, out pos))
-                                {
-                                    patrolLoc[index] = pos;
-                                }
-                                else
-                                {
-                                    patrolLoc[index] = parent.Position;
-                                }
-                                patrolLocomotion[index] = LocomotionUrgency.Walk;
-                                waitForOrders[index] = true;
-                                waitTicks[index] = Find.TickManager.TicksGame + 1200;
-                                return;
-                            }
-                            //}
-                        }
-                    }
-                }
-                else if (GroupStrength(index) >= 150)
-                {
-                    Pawn pawn = null;
-                    foreach (Pawn p in spawnedPawns[index])
-                    {
-                        int dist = IntVec3Utility.ManhattanDistanceFlat(p.Position, patrolLoc[index]);
-                        if (dist > 8)
-                        {
-                            bool asleep = p.jobs.posture == PawnPosture.LayingOnGroundNormal;
-                            bool atWork = p.jobs.curJob != null && p.jobs.curJob.targetA != null && p.jobs.curJob.targetA != patrolLoc[index];
-                            if (!asleep && !atWork)
-                            {
-                                // Waits for group to regroup if a pawn is behind and not sleeping or busy
-                                waitTicks[index] = Find.TickManager.TicksGame + 1200;
-                                return;
-                            }
-                        }
-                        pawn = p;
-                    }
-                    if (pawn != null)
-                    {
-                        if (waitForOrders[index])
-                        {
-                            if (Rand.Range(1, 100) <= 30)
-                            {
-                                // 30% chance of waiting at current location
-                                waitForOrders[index] = false;
-                                waitTicks[index] = Find.TickManager.TicksGame + 900;
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            IntVec3 pos = IntVec3.Invalid;
-                            if (Rand.Range(1, 100) <= 5)
-                            {
-                                pos = HiveUtility.GetHive(pawn).Position;
-                                if (pos != IntVec3.Invalid && pawn.CanReserve(pos))
-                                {
-                                    // 5% chance of returning to hive
-                                    patrolLoc[index] = pos;
-                                    patrolLocomotion[index] = LocomotionUrgency.Walk;
-                                    waitForOrders[index] = true;
-                                    waitTicks[index] = Find.TickManager.TicksGame + 1200;
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                pos = HiveUtility.FindPathToPrey(pawn);
-                                if (pos != IntVec3.Invalid && pawn.CanReserve(pos))
-                                {
-                                    // Patrol towards prey
-                                    patrolLoc[index] = pos;
-                                    patrolLocomotion[index] = LocomotionUrgency.Walk;
-                                    waitForOrders[index] = true;
-                                    waitTicks[index] = Find.TickManager.TicksGame + 1200;
-                                    return;
-                                }
-                                else
-                                {
-                                    // If no prey, patrol randomly
-                                    if (CellFinder.TryFindRandomReachableNearbyCell(pawn.Position, pawn.Map, 15f, TraverseMode.PassDoors, (c => c.Standable(pawn.Map)), null, out pos))
-                                    {
-                                        patrolLoc[index] = pos;
-                                    }
-                                    else
-                                    {
-                                        patrolLoc[index] = parent.Position;
-                                    }
-                                    patrolLocomotion[index] = LocomotionUrgency.Walk;
-                                    waitForOrders[index] = true;
-                                    waitTicks[index] = Find.TickManager.TicksGame + 1200;
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // If not strong enough, wait in hive for more pawns to spawn
-                    waitTicks[index] = Find.TickManager.TicksGame + 7200;
-                    patrolLoc[index] = parent.Position;
-                    patrolLocomotion[index] = LocomotionUrgency.Amble;
+                    waitTicks[index] = 7200;
                     return;
                 }
+                Log.Message($"groupStrength = {groupStrength}");
+
+                Pawn pawn = null;
+                foreach (Pawn p in spawnedPawns[index])
+                {
+                    pawn = p;
+                    // if pawn is outside of patrol location and on the way, then regroup
+                    if (IntVec3Utility.ManhattanDistanceFlat(p.Position, patrolLoc[index]) > 8)
+                    {
+                        if (p.jobs.curJob != null && (p.jobs.curJob.def == RimWorld.JobDefOf.GotoWander || pawn.jobs.curJob?.def == RimWorld.JobDefOf.Wait_Wander)) break;
+                        
+                        bool asleep = p.jobs.posture == PawnPosture.LayingOnGroundNormal;
+                        bool atWork = p.jobs.curJob != null && p.jobs.curJob.targetA != null && p.jobs.curJob.targetA != patrolLoc[index];
+
+                        if (!asleep && !atWork)
+                        {
+                            // Waits for group to regroup if a pawn is behind and not sleeping or busy
+                            waitTicks[index] = Find.TickManager.TicksGame + 1200;
+                            return;
+                        }
+                    }
+                }
+
+                switch (groupState[index])
+                {
+                    case GroupState.Idle:
+                        Log.Message($"Group {index} of {parent.ThingID} is idle! Group strength is {groupStrength}");
+
+                        waitTicks[index] = Find.TickManager.TicksGame + 7200;
+                        if (groupStrength > 120)
+                        {
+                            groupState[index] = GroupState.Patrolling;
+                            patrolLocomotion[index] = LocomotionUrgency.Walk;
+                        }
+                        else
+                        {
+                            // If not strong enough, wait in hive for more pawns to spawn
+                            patrolLoc[index] = parent.Position;
+                            patrolLocomotion[index] = LocomotionUrgency.Amble;
+                        }
+                        break;
+
+                    case GroupState.Patrolling:
+
+                        pos = HiveUtility.FindPathToPrey(pawn);
+                        if (pos != IntVec3.Invalid && pawn.CanReserve(pos))
+                        {
+                            Log.Message($"Group {index} of {parent.ThingID} is patrolling towards prey!");
+                            // Patrol towards prey
+                            patrolLoc[index] = pos;
+                            waitTicks[index] = Find.TickManager.TicksGame + 1200;
+
+                            // weaker groups wait more, stronger groups hunt better
+                            if (groupStrength < 400f && Rand.Range(1, 100) <= 40) groupState[index] = GroupState.WaitForOrders;
+                            if (groupStrength >= 400f && Rand.Range(1, 100) <= 20) groupState[index] = GroupState.WaitForOrders;
+
+                            break;
+                        }
+                        else
+                        {
+                            // If no prey, patrol randomly
+                            if (CellFinder.TryFindRandomReachableNearbyCell(pawn.Position, pawn.Map, 15f, TraverseMode.PassDoors, (c => c.Standable(pawn.Map)), null, out pos))
+                            {
+                                Log.Message($"Group {index} of {parent.ThingID} is patrolling randomly!");
+                                patrolLoc[index] = pos;
+                                waitTicks[index] = Find.TickManager.TicksGame + 1800;
+
+                                if (Rand.Range(1, 100) <= 25) groupState[index] = GroupState.WaitForOrders;
+                            }
+                            else
+                            {
+                                //patrolLoc[index] = parent.Position;
+                                groupState[index] = GroupState.Returning;
+                                waitTicks[index] = Find.TickManager.TicksGame + 60;
+                            }
+                        }
+
+                        patrolLocomotion[index] = LocomotionUrgency.Walk;
+                        break;
+
+                    case GroupState.WaitForOrders:
+                        Log.Message($"Group {index} of {parent.ThingID} is waiting!");
+
+                        waitTicks[index] = Find.TickManager.TicksGame + 1200;
+                        groupState[index] = GroupState.Patrolling;
+                        break;
+
+                    case GroupState.Returning:
+                        Log.Message($"Group {index} of {parent.ThingID} is returning!");
+
+                        patrolLocomotion[index] = LocomotionUrgency.Jog;
+                        patrolLoc[index] = parent.Position;
+                        waitTicks[index] = Find.TickManager.TicksGame + 3600; // 1 minute to return to hive
+
+                        groupState[index] = GroupState.Idle;
+
+                        break;
+                }
+
+                if (groupStrength < 120 && groupState[index] != GroupState.Idle)
+                {
+                    groupState[index] = GroupState.Returning;
+                    waitTicks[index] = Find.TickManager.TicksGame + 60;
+                }
+                ;
             }
         }
         public override IEnumerable<Gizmo> CompGetGizmosExtra()

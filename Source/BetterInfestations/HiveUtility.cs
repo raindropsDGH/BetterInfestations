@@ -252,7 +252,7 @@ namespace BetterInfestations
             }
             foreach (Pawn p in pawn.Map.mapPawns.AllPawnsSpawned.ToList())
             {
-                if (ValidatorUtility.pawnValidator(pawn, true, false, false)(p)) targetList.Add(p);
+                if (ValidatorUtility.pawnValidator(pawn, true, false, false, true, false)(p)) targetList.Add(p);
             }
             foreach (Corpse c in pawn.Map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse))
             {

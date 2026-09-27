@@ -428,7 +428,7 @@ namespace BetterInfestations
                 Thing thing = GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, ThingRequest.ForGroup(ThingRequestGroup.Pawn), PathEndMode.OnCell, TraverseParms.For(TraverseMode.PassDoors, Danger.Deadly, true, true, true), 8, ValidatorUtility.itemValidator(pawn, true, false));
                 if (thing != null) return true;
 
-                thing = GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, ThingRequest.ForGroup(ThingRequestGroup.Pawn), PathEndMode.OnCell, TraverseParms.For(TraverseMode.PassDoors, Danger.Deadly, true, true, true), 8, ValidatorUtility.pawnValidator(pawn, true, false, false, false));
+                thing = GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, ThingRequest.ForGroup(ThingRequestGroup.Pawn), PathEndMode.OnCell, TraverseParms.For(TraverseMode.PassDoors, Danger.Deadly, true, true, true), 8, ValidatorUtility.pawnValidator(pawn, true, false, false, false, false));
                 if (thing != null) return true;
 
                 thing = GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, ThingRequest.ForGroup(ThingRequestGroup.Pawn), PathEndMode.OnCell, TraverseParms.For(TraverseMode.PassDoors, Danger.Deadly, true, true, true), 8, ValidatorUtility.corpseValidator(pawn, true, false));
@@ -489,7 +489,7 @@ namespace BetterInfestations
                 if (thing != null) return true;
 
                 // Look out for pawn
-                thing = GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, ThingRequest.ForGroup(ThingRequestGroup.Pawn), PathEndMode.OnCell, TraverseParms.For(TraverseMode.PassDoors, Danger.Deadly, true, true, true), 24, ValidatorUtility.pawnValidator(pawn, true, false, false, false));
+                thing = GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, ThingRequest.ForGroup(ThingRequestGroup.Pawn), PathEndMode.OnCell, TraverseParms.For(TraverseMode.PassDoors, Danger.Deadly, true, true, true), 24, ValidatorUtility.pawnValidator(pawn, true, false, false, false, true));
                 if (thing != null) return true;
             }
             return false;

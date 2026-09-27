@@ -12,11 +12,15 @@ namespace BetterInfestations
 {
     public static class ValidatorUtility
     {
-        public static Predicate<Thing> pawnValidator(Pawn pawn, bool factionCheck = false, bool lookForDownedOnly = true, bool lookWithinHive = false, bool careIfWithinHive = true) => delegate (Thing t)
+        public static Predicate<Thing> pawnValidator(Pawn pawn, bool factionCheck = false, bool lookForDownedOnly = false, bool lookWithinHive = false, bool careIfWithinHive = false, bool careIfDowned = false) => delegate (Thing t)
         {
             Pawn p = t as Pawn;
             if (p == null) return false;
-            if (lookForDownedOnly && !p.Downed) return false;
+            if (careIfDowned)
+            {
+                if (lookForDownedOnly && !p.Downed) return false;
+                else if (!lookForDownedOnly && p.Downed) return false;
+            }
             if (!p.RaceProps.IsFlesh) return false;
             if (p.RaceProps.DeathActionWorker.DangerousInMelee) return false;
             if (p.IsBurning() || p.Fogged()) return false;
