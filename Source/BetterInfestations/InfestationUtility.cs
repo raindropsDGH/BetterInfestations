@@ -24,7 +24,7 @@ namespace BetterInfestations
         public static float CalculateHiveTimeFactor(float timeDays)
         {
             float factor;
-            
+
             if (timeDays > 15f) factor = 1.0f;
             else factor = HiveTimeFactorCurveDays.Evaluate(timeDays);
 

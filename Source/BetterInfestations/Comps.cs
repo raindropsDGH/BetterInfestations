@@ -922,17 +922,18 @@ namespace BetterInfestations
                     case GroupState.Idle:
                         Log.Message($"Group {index} of {parent.ThingID} is idle! Group strength is {groupStrength}");
 
-                        waitTicks[index] = Find.TickManager.TicksGame + 7200;
                         if (groupStrength > 120)
                         {
                             groupState[index] = GroupState.Patrolling;
                             patrolLocomotion[index] = LocomotionUrgency.Walk;
+                            waitTicks[index] = Find.TickManager.TicksGame + 60;
                         }
                         else
                         {
                             // If not strong enough, wait in hive for more pawns to spawn
                             patrolLoc[index] = parent.Position;
                             patrolLocomotion[index] = LocomotionUrgency.Amble;
+                            waitTicks[index] = Find.TickManager.TicksGame + 7200;
                         }
                         break;
 

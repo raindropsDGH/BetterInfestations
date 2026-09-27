@@ -19,6 +19,7 @@ namespace BetterInfestations
         public bool newbornInsects = false;
         public bool notificationInf = false;
         public bool produceLeather = true;
+        public bool vanillaSpawn = false;
         public int hiveLevel = 1;
         public int maxHivesPerMap = 30;
         public float initialPawnsPoints = 350f;
@@ -48,6 +49,7 @@ namespace BetterInfestations
             Scribe_Values.Look(ref newbornInsects, "newbornInsects", false);
             Scribe_Values.Look(ref notificationInf, "notificationInf", false);
             Scribe_Values.Look(ref produceLeather, "produceLeather", true);
+            Scribe_Values.Look(ref vanillaSpawn, "vanillaSpawn", true);
             Scribe_Values.Look(ref hiveLevel, "hiveLevel", 1);
             Scribe_Values.Look(ref maxHivesPerMap, "maxHivesPerMap", 30);
             Scribe_Values.Look(ref initialPawnsPoints, "initialPawnsPoints", 350f);
@@ -307,6 +309,16 @@ namespace BetterInfestations
             Widgets.Label(labelRect11, "Spawn newborns");
             GUI.color = Color.white;
             TooltipHandler.TipRegionByKey(labelRect11, "BI_SpawnNewbornsTip");
+
+            y += 32f;
+            Rect checkboxRect6 = new Rect(x + 8f, y, width, height);
+            Vector2 checkboxVec2_6 = new Vector2(checkboxRect6.x, checkboxRect6.y);
+            Widgets.Checkbox(checkboxVec2_6, ref settings.vanillaSpawn);
+            GUI.color = darkerWhite;
+            Rect labelRect14 = new Rect(x + 40f, y, width, height);
+            Widgets.Label(labelRect14, "Include vanilla spawn chances");
+            GUI.color = Color.white;
+            TooltipHandler.TipRegionByKey(labelRect14, "BI_VanillaSpawnTip");
 
             y += 48f;
             Rect sliderRect13 = new Rect(x + 8f, y, width, height);

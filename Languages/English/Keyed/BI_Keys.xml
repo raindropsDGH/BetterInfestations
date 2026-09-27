@@ -13,6 +13,7 @@
   <BI_SpawnQueensTip>Queens can spawn from the hives when this is checked.</BI_SpawnQueensTip>
   <BI_SpawnNewbornsTip>If this is enabled the insects that spawn from the hives will be newborns.</BI_SpawnNewbornsTip>
   <BI_ProduceLeatherTip>When hive insects butcher corpses, they can produce leather.</BI_ProduceLeatherTip>
+  <BI_VanillaSpawnTip>Considers indoor cells and near colony cells, be warned!</BI_VanillaSpawnTip>
   <BI_HiveLimitTip>Caution: Performance costs scale directly with number of hives. Things can get ridiculous above 30 hives!</BI_HiveLimitTip>
   <BI_InitialScoreTip>Initial pawn strength is the number of groups times the initial spawn points.</BI_InitialScoreTip>
   <BI_UninstallTip>This removes all traces of better infestations modifications for you to safely unsubscribe from the mod. ***BACKUP YOUR SAVE BEFORE USING!***</BI_UninstallTip>

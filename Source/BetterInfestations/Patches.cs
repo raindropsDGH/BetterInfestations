@@ -94,15 +94,9 @@ namespace BetterInfestations
             }
             public static float GetScoreAt(IntVec3 cell, Map map)
             {
+
                 float score = 0f;
                 TerrainDef terrainDef = cell.GetTerrain(map);
-                if (terrainDef != null)
-                {
-                    if (!terrainDef.label.Contains("rough") && !terrainDef.label.Contains("hewn") && !terrainDef.label.Contains("smooth") && !terrainDef.label.Contains("stony"))
-                    {
-                        return 0f;
-                    }
-                }
                 if (!cell.Walkable(map))
                 {
                     return 0f;
@@ -120,22 +114,56 @@ namespace BetterInfestations
                 {
                     return 0f;
                 }
-                if (!cell.GetRoom(map).TouchesMapEdge)
+
+                // vanilla-like infestation allowance
+                if (BetterInfestationsMod.settings.vanillaSpawn)
                 {
-                    return 0f;
+                    if (terrainDef != null)
+                    {
+                        if (cell.GetRoom(map).TouchesMapEdge)
+                        {
+                            if (!terrainDef.label.Contains("rough") && !terrainDef.label.Contains("hewn") && !terrainDef.label.Contains("smooth") && !terrainDef.label.Contains("stony"))
+                            {
+                                return 0f;
+                            }
+                            else
+                            {
+                                score += 7.5f;
+                            }
+                        }
+                    }
+                    if (cell.GetRoom(map).CellCount < 2)
+                    {
+                        return 0f;
+                    }
                 }
-                if (cell.GetRoom(map).CellCount < 300)
+                else
                 {
-                    return 0f;
+                    if (terrainDef != null)
+                    {
+                        if (!terrainDef.label.Contains("rough") && !terrainDef.label.Contains("hewn") && !terrainDef.label.Contains("smooth") && !terrainDef.label.Contains("stony"))
+                        {
+                            return 0f;
+                        }
+                    }
+                    if (!cell.GetRoom(map).TouchesMapEdge)
+                    {
+                        return 0f;
+                    }
+                    if (cell.GetRoom(map).CellCount < 300)
+                    {
+                        return 0f;
+                    }
+                    if (DistanceToColonyBuilding(cell, map) < 50)
+                    {
+                        score -= 22f;
+                    }
                 }
+
                 float temperature = cell.GetTemperature(map);
                 if (temperature < -17f)
                 {
                     return 0f;
-                }
-                if (DistanceToColonyBuilding(cell, map) < 50)
-                {
-                    score -= 22f;
                 }
                 if (DistanceToHive(cell, map) < 40)
                 {
@@ -260,7 +288,7 @@ namespace BetterInfestations
                         timeStamp = Find.TickManager.TicksGame + 180;
                         tmpCachedInfestationChanceCellColors.Clear();
                         Map currentMap = Find.CurrentMap;
-                        float num = 0.001f;
+                        float num = 7.501f;
                         for (int i = 0; i < currentMap.Size.z; i++)
                         {
                             for (int j = 0; j < currentMap.Size.x; j++)
