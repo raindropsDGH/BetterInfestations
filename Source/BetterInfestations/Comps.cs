@@ -894,7 +894,7 @@ namespace BetterInfestations
                     waitTicks[index] = 7200;
                     return;
                 }
-                Log.Message($"groupStrength = {groupStrength}");
+                //Log.Message($"groupStrength = {groupStrength}");
 
                 Pawn pawn = null;
                 foreach (Pawn p in spawnedPawns[index])
@@ -920,7 +920,7 @@ namespace BetterInfestations
                 switch (groupState[index])
                 {
                     case GroupState.Idle:
-                        Log.Message($"Group {index} of {parent.ThingID} is idle! Group strength is {groupStrength}");
+                        //Log.Message($"Group {index} of {parent.ThingID} is idle! Group strength is {groupStrength}");
 
                         if (groupStrength > 120)
                         {
@@ -942,7 +942,7 @@ namespace BetterInfestations
                         pos = HiveUtility.FindPathToPrey(pawn);
                         if (pos != IntVec3.Invalid && pawn.CanReserve(pos))
                         {
-                            Log.Message($"Group {index} of {parent.ThingID} is patrolling towards prey!");
+                            //Log.Message($"Group {index} of {parent.ThingID} is patrolling towards prey!");
                             // Patrol towards prey
                             patrolLoc[index] = pos;
                             waitTicks[index] = Find.TickManager.TicksGame + 1200;
@@ -958,7 +958,7 @@ namespace BetterInfestations
                             // If no prey, patrol randomly
                             if (CellFinder.TryFindRandomReachableNearbyCell(pawn.Position, pawn.Map, 15f, TraverseMode.PassDoors, (c => c.Standable(pawn.Map)), null, out pos))
                             {
-                                Log.Message($"Group {index} of {parent.ThingID} is patrolling randomly!");
+                                //Log.Message($"Group {index} of {parent.ThingID} is patrolling randomly!");
                                 patrolLoc[index] = pos;
                                 waitTicks[index] = Find.TickManager.TicksGame + 1800;
 
@@ -976,14 +976,14 @@ namespace BetterInfestations
                         break;
 
                     case GroupState.WaitForOrders:
-                        Log.Message($"Group {index} of {parent.ThingID} is waiting!");
+                        //Log.Message($"Group {index} of {parent.ThingID} is waiting!");
 
                         waitTicks[index] = Find.TickManager.TicksGame + 1200;
                         groupState[index] = GroupState.Patrolling;
                         break;
 
                     case GroupState.Returning:
-                        Log.Message($"Group {index} of {parent.ThingID} is returning!");
+                        //Log.Message($"Group {index} of {parent.ThingID} is returning!");
 
                         patrolLocomotion[index] = LocomotionUrgency.Jog;
                         patrolLoc[index] = parent.Position;
@@ -1056,6 +1056,9 @@ namespace BetterInfestations
             LocomotionUrgency defenseGroupPatrolLocomotion = patrolLocomotion[0];
             LocomotionUrgency huntingGroup1PatrolLocomotion = patrolLocomotion[1];
             LocomotionUrgency huntingGroup2PatrolLocomotion = patrolLocomotion[2];
+            GroupState defenseGroupGroupState = groupState[0];
+            GroupState huntingGroup1GroupState = groupState[1];
+            GroupState huntingGroup2GroupState = groupState[2];
             bool defenseGroupWaitForOrders = waitForOrders[0];
             bool huntingGroup1WaitForOrders = waitForOrders[1];
             bool huntingGroup2WaitForOrders = waitForOrders[2];
@@ -1073,6 +1076,7 @@ namespace BetterInfestations
             Scribe_References.Look(ref defenseGroupAttackTarget, "defenseGroupAttackTarget");
             Scribe_Values.Look(ref defenseGroupPatrolLoc, "defenseGroupPatrolLoc", IntVec3.Invalid);
             Scribe_Values.Look(ref defenseGroupPatrolLocomotion, "defenseGroupPatrolLocomotion", LocomotionUrgency.Walk);
+            Scribe_Values.Look(ref defenseGroupGroupState, "defenseGroupGroupState", GroupState.Idle);
             Scribe_Values.Look(ref defenseGroupWaitForOrders, "defenseGroupWaitForOrders", true);
             Scribe_Values.Look(ref defenseGroupWaitTicks, "defenseGroupWaitTicks", 0);
             Scribe_Values.Look(ref defenseGroupMaxSpawnedPawnsPoints, "defenseGroupMaxSpawnedPawnsPoints", 1000f);
@@ -1083,6 +1087,7 @@ namespace BetterInfestations
             Scribe_References.Look(ref huntingGroup1AttackTarget, "huntingGroup1AttackTarget");
             Scribe_Values.Look(ref huntingGroup1PatrolLoc, "huntingGroup1PatrolLoc", IntVec3.Invalid);
             Scribe_Values.Look(ref huntingGroup1PatrolLocomotion, "huntingGroup1PatrolLocomotion", LocomotionUrgency.Walk);
+            Scribe_Values.Look(ref huntingGroup1GroupState, "huntingGroup1GroupState", GroupState.Idle);
             Scribe_Values.Look(ref huntingGroup1WaitForOrders, "huntingGroup1WaitForOrders", true);
             Scribe_Values.Look(ref huntingGroup1WaitTicks, "huntingGroup1WaitTicks", 0);
             Scribe_Values.Look(ref huntingGroup1MaxSpawnedPawnsPoints, "huntingGroup1MaxSpawnedPawnsPoints", 1000f);
@@ -1093,6 +1098,7 @@ namespace BetterInfestations
             Scribe_References.Look(ref huntingGroup2AttackTarget, "huntingGroup2AttackTarget");
             Scribe_Values.Look(ref huntingGroup2PatrolLoc, "huntingGroup2PatrolLoc", IntVec3.Invalid);
             Scribe_Values.Look(ref huntingGroup2PatrolLocomotion, "huntingGroup2PatrolLocomotion", LocomotionUrgency.Walk);
+            Scribe_Values.Look(ref huntingGroup2GroupState, "huntingGroup2GroupState", GroupState.Idle);
             Scribe_Values.Look(ref huntingGroup2WaitForOrders, "huntingGroup2WaitForOrders", true);
             Scribe_Values.Look(ref huntingGroup2WaitTicks, "huntingGroup2WaitTicks", 0);
             Scribe_Values.Look(ref huntingGroup2MaxSpawnedPawnsPoints, "huntingGroup2MaxSpawnedPawnsPoints", -1f);
@@ -1117,6 +1123,9 @@ namespace BetterInfestations
             patrolLocomotion[0] = defenseGroupPatrolLocomotion;
             patrolLocomotion[1] = huntingGroup1PatrolLocomotion;
             patrolLocomotion[2] = huntingGroup2PatrolLocomotion;
+            groupState[0] = defenseGroupGroupState;
+            groupState[1] = huntingGroup1GroupState;
+            groupState[2] = huntingGroup2GroupState;
             waitForOrders[0] = defenseGroupWaitForOrders;
             waitForOrders[1] = huntingGroup1WaitForOrders;
             waitForOrders[2] = huntingGroup2WaitForOrders;

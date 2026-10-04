@@ -175,20 +175,24 @@ namespace BetterInfestations
                 }
                 else
                 {
-                    Thing thing2 = ThingMaker.MakeThing(RimWorld.ThingDefOf.InsectJelly, null);
-                    if (thing2 != null)
+                    int stackCount = (int)(BetterInfestationsMod.settings.jellyMultiplier * thing.stackCount * thing.GetStatValue(StatDefOf.Nutrition) / ThingDefOf.InsectJelly.GetStatValueAbstract(StatDefOf.Nutrition));
+                    stackCount = Math.Max(0, stackCount);
+
+                    while (stackCount > 0)
                     {
-                        thing2.stackCount = (int)Math.Ceiling((double)thing.stackCount * BetterInfestationsMod.settings.jellyMultiplier);
-                        GenPlace.TryPlaceThing(thing2, thing.Position, thing.Map, ThingPlaceMode.Near, out Thing jelly, null);
-                        if (jelly != null)
+                        Thing thing2 = ThingMaker.MakeThing(RimWorld.ThingDefOf.InsectJelly, null);
+                        if (thing2 != null)
                         {
-                            jelly.SetForbidden(true);
-                        }
-                        if (!thing.Destroyed)
-                        {
-                            thing.Destroy(DestroyMode.Vanish);
+                            int spawnCount = Math.Min(stackCount, ThingDefOf.InsectJelly.stackLimit);
+                            thing2.stackCount = spawnCount;
+
+                            GenPlace.TryPlaceThing(thing2, thing.Position, thing.Map, ThingPlaceMode.Near, out Thing jelly, null);
+                            if (jelly != null) jelly.SetForbidden(true);
+                            stackCount -= spawnCount;
                         }
                     }
+
+                    if (!thing.Destroyed) thing.Destroy(DestroyMode.Vanish);
                 }
             }
         }

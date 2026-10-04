@@ -23,7 +23,7 @@ namespace BetterInfestations
         public int hiveLevel = 1;
         public int maxHivesPerMap = 30;
         public float initialPawnsPoints = 350f;
-        public float jellyMultiplier = 0.25f;
+        public float jellyMultiplier = 1.2f;
         public List<float> minSpawnInDays = new List<float> { 0.75f, 0.85f, 0.85f};
         public List<float> maxSpawnInDays = new List<float> { 1.25f, 1.4f, 1.4f};
         public float queenHiveMinSpawnInDays = 1.6f;
@@ -53,7 +53,7 @@ namespace BetterInfestations
             Scribe_Values.Look(ref hiveLevel, "hiveLevel", 1);
             Scribe_Values.Look(ref maxHivesPerMap, "maxHivesPerMap", 30);
             Scribe_Values.Look(ref initialPawnsPoints, "initialPawnsPoints", 350f);
-            Scribe_Values.Look(ref jellyMultiplier, "jellyMultiplier", 0.25f);
+            Scribe_Values.Look(ref jellyMultiplier, "jellyMultiplier", 1.2f);
             Scribe_Values.Look(ref defenderMinSpawnInDays, "defenderMinSpawnInDays", 0.75f);
             Scribe_Values.Look(ref defenderMaxSpawnInDays, "defenderMaxSpawnInDays", 1.25f);
             Scribe_Values.Look(ref hunter1MinSpawnInDays, "hunter1MinSpawnInDays", 0.85f);
@@ -238,7 +238,7 @@ namespace BetterInfestations
 
             y += 48f;
             Rect sliderRect15 = new Rect(x + 8f, y, width - 4f, height);
-            settings.jellyMultiplier = HorizontalSliderFraction(sliderRect15, settings.jellyMultiplier, 0.05f, 1f, false, null, "Jelly conversion multiplier", (settings.jellyMultiplier * 100).ToString() + " %", 0.05f, 2);
+            settings.jellyMultiplier = HorizontalSliderFraction(sliderRect15, settings.jellyMultiplier, 0.5f, 5f, false, null, "Jelly conversion multiplier", (settings.jellyMultiplier * 100).ToString() + " %", 0.05f, 2);
 
             y += 48f;
             Rect drawTexRect6 = new Rect(0f, y, width + 8f, height);
